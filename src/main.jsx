@@ -10,32 +10,40 @@ import axios from "axios";
 const AppWrapper = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState({});
-  const [loader , setLoader] = useState(false)
-  const [autoloading ,setAutoloading] = useState(true)
+  const [loader, setLoader] = useState(false);
+  const [autoloading, setAutoloading] = useState(true);
   useEffect(() => {
-    setLoader(true)
+    setLoader(true);
     axios
       .get(`${server}/api/user/my`, { withCredentials: true })
       .then((res) => {
         console.log(res);
-        setUser(res.data.user)
-        setIsAuthenticated(true)
-        setLoader(false)
+        setUser(res.data.user);
+        setIsAuthenticated(true);
       })
       .catch((err) => {
         console.log(err);
-        setIsAuthenticated(false)
-        setUser({})
-      }).finally(()=>{
-        setLoader(false)
+        setIsAuthenticated(false);
+        setUser({});
+      })
+      .finally(() => {
+        setLoader(false);
         setAutoloading(false);
-      }
-      )
-  },[]);
+      });
+  }, []);
 
   return (
     <ToDoContext.Provider
-      value={{ isAuthenticated, setIsAuthenticated, user, setUser ,loader , setLoader , autoloading , setAutoloading }}
+      value={{
+        isAuthenticated,
+        setIsAuthenticated,
+        user,
+        setUser,
+        loader,
+        setLoader,
+        autoloading,
+        setAutoloading,
+      }}
     >
       <App />
       <Toaster />

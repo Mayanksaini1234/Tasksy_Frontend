@@ -18,7 +18,6 @@ import {
 const Home = () => {
   const { isAuthenticated, user, autoloading } = useContext(ToDoContext);
   const navigate = useNavigate();
-
   const [data, setData] = useState({ title: "", discription: "" });
   const [loader, setLoader] = useState(false);
   const [taskList, setTaskList] = useState([]);
@@ -49,7 +48,6 @@ const Home = () => {
     setLoader(true);
     e.preventDefault();
     if (!isAuthenticated) return navigate("/login");
-
     const { title, discription } = data;
     try {
       const { data } = await axios.post(
@@ -70,7 +68,7 @@ const Home = () => {
         setData({ title: "", discription: "" });
         setLoader(false);
         setRefresh((prev) => !prev);
-        // It simple change the previos value to its opposite
+        // It simple change the previos value to its opposite so that useEffect will run again and fetch the new data from the server and update the taskList state with the new data.
       }
     } catch (error) {
       console.log(error);
@@ -108,9 +106,6 @@ const Home = () => {
         `${server}/api/task/${id}`,
         {},
         {
-          headers: {
-            "Content-Type": "application/json",
-          },
           withCredentials: true,
         },
       );

@@ -12,9 +12,13 @@ const Header = () => {
   const logoutUser = async () => {
     try {
       setLoader(true);
-      const { data } = await axios.post(`${server}/api/user/logout`,{}, {
-        withCredentials: true,
-      });
+      const { data } = await axios.post(
+        `${server}/api/user/logout`,
+        {},
+        {
+          withCredentials: true,
+        },
+      );
       if (data) {
         toast.success("You are successfully logged out!");
         setIsAuthenticated(false);
@@ -27,13 +31,12 @@ const Header = () => {
       setIsAuthenticated(true);
       setLoader(false);
     }
-  };  
+  };
 
   return (
     <header className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-b border-slate-800 shadow-lg">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex justify-between items-center h-16">
-
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <h1 className="text-2xl font-bold tracking-wide text-white">
@@ -46,13 +49,14 @@ const Header = () => {
 
           {/* Navigation */}
           <nav className="flex items-center space-x-4">
-
-            <Link
-              to="/"
-              className="text-slate-300 hover:text-amber-300 px-3 py-2 rounded-md text-sm font-medium transition-all hover:bg-slate-800/70"
-            >
-              Dashboard
-            </Link>
+            {isAuthenticated && (
+              <Link
+                to="/"
+                className="text-slate-300 hover:text-amber-300 px-3 py-2 rounded-md text-sm font-medium transition-all hover:bg-slate-800/70"
+              >
+                Dashboard
+              </Link>
+            )}
 
             {isAuthenticated && (
               <Link
@@ -83,7 +87,6 @@ const Header = () => {
                 )}
               </button>
             )}
-
           </nav>
         </div>
       </div>

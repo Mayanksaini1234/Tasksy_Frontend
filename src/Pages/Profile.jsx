@@ -53,8 +53,7 @@ const Profile = () => {
  console.log(data);
       toast.success("Profile updated successfully");
 
-      setUser(data.user);
-
+      setUser(data.user);   // this is the most important line, it updates the user context with the new user data returned from the server after the update.
       setShowForm(false);
     } catch (error) {
       toast.error(

@@ -1,15 +1,29 @@
 import axios from "axios";
-import {  Loader } from "lucide-react";
+import { Loader } from "lucide-react";
 import React, { useState } from "react";
 import { server } from "../main";
 import { toast } from "sonner";
 
+const validate = ({ email }) => {
+  const errors = [];
+  if (!email) {
+    errors.push("Email is required");
+  } else if (!/\S+@\S+\.\S+/.test(email)) {
+    errors.push("Email is invalid");
+  }
+  return errors;
+};
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-const [loader , setLoader] = useState(false)
+  const [loader, setLoader] = useState(false);
   const submitHandler = async (e) => {
     e.preventDefault();
-    setLoader(true)
+    const errors = validate({ email });
+    if (errors.length > 0) {
+      errors.forEach((error) => toast.error(error));
+      return;
+    }
+    setLoader(true);
     try {
       const data = await axios.post(
         `${server}/api/user/forgotPassword`,
@@ -18,21 +32,27 @@ const [loader , setLoader] = useState(false)
           headers: {
             "Content-Type": "application/json",
           },
-        //   necessary while post and put 
+          //   necessary while post and put
           withCredentials: true,
-        }
+        },
       );
 
-     
       if (data) {
-        setLoader(false)
+        setLoader(false);
         setEmail("");
         toast.success(data.data.message);
       }
     } catch (error) {
-      console.log(error);
-      setLoader(false)
-      toast.error(error.response.data.message);
+      const errors = error.response?.data?.errors;
+      // Backend validation errors are sent as an array in the response, so we check if errors exist and are an array before iterating over them. If not, we display a generic error message.
+      if (errors && Array.isArray(errors)) {
+        errors.forEach((err) => toast.error(err));
+        // when  there are multiple errors in the form of array via backend validation
+      } else {
+        toast.error(error.response?.data?.message || "Something went wrong");
+        // when there  is only one error in the form of string
+      }
+      setLoader(false);
     }
   };
 
@@ -57,6 +77,7 @@ const [loader , setLoader] = useState(false)
               onChange={(e) => {
                 setEmail(e.target.value);
               }}
+              disabled={loader}
               value={email}
               id="email"
               name="email"
@@ -67,11 +88,11 @@ const [loader , setLoader] = useState(false)
             />
           </div>
           <button
-          disabled={loader}
+            disabled={loader}
             type="submit"
-          className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-slate-950 bg-amber-400 hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-400 transition-all duration-300"
+            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-slate-950 bg-amber-400 hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-400 transition-all duration-300"
           >
-            {loader ? <Loader className="animate-spin"/> : "Send Reset Link"}
+            {loader ? <Loader className="animate-spin" /> : "Send Reset Link"}
           </button>
         </form>
       </div>

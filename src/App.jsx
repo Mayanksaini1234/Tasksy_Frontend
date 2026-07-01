@@ -6,12 +6,11 @@ import Login from "./Pages/Login.jsx";
 import NotFound from "./Pages/NotFound.jsx";
 import Register from "./Pages/Register.jsx";
 import Profile from "./Pages/Profile.jsx";
-import OAuthSuccess from "./Pages/OAuthSuccess.jsx";
 import ForgotPassword from "./Pages/ForgotPassword.jsx";
 import ResetPassword from "./Pages/ResetPassword.jsx";
 import { ToDoContext } from "./context/ToDOContext.jsx";
 function App() {
-  const { isAuthenticated, autoloading } = useContext(ToDoContext);
+  const { isAuthenticated } = useContext(ToDoContext);
 
   return (
     <BrowserRouter>
@@ -21,7 +20,6 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="*" element={<NotFound />} />
-        <Route path="/oauth-success" element={<OAuthSuccess />} />
         <Route path="/forgotPassword" element={<ForgotPassword/>} />
         <Route path="/reset-password/:token" element={<ResetPassword/>} />
         <Route path="/myProfile" element={<Profile />} />

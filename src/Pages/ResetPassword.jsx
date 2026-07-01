@@ -1,18 +1,38 @@
 import axios from "axios";
-import {  Loader } from "lucide-react";
+import { Loader } from "lucide-react";
 import React, { useState } from "react";
 import { server } from "../main";
 import { toast } from "sonner";
 import { useNavigate, useParams } from "react-router-dom";
 
+const Validate = ({ password, confirmPassword }) => {
+  const errors = [];
+  if (!password) {
+    errors.push("Password is required");
+  } else if (password.length < 6) {
+    errors.push("Password must be at least 6 characters long");
+  }
+  if (!confirmPassword) {
+    errors.push("Confirm Password is required");
+  } else if (password !== confirmPassword) {
+    errors.push("Passwords do not match");
+  }
+  return errors;
+};
 const ResetPassword = () => {
-  const [password , setPassword] = useState("")
-const [loader , setLoader] = useState(false)
-const navigate = useNavigate();
-const {token} = useParams();
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loader, setLoader] = useState(false);
+  const navigate = useNavigate();
+  const { token } = useParams();
   const submitHandler = async (e) => {
     e.preventDefault();
-    setLoader(true)
+    const errors = Validate({ password, confirmPassword });
+    if (errors.length > 0) {
+      errors.forEach((error) => toast.error(error));
+      return;
+    }
+    setLoader(true);
     try {
       const data = await axios.put(
         `${server}/api/user/reset-password/${token}`,
@@ -22,18 +42,25 @@ const {token} = useParams();
             "Content-Type": "application/json",
           },
           withCredentials: true,
-        }
+        },
       );
 
       if (data) {
-        setLoader(false)
+        setLoader(false);
         toast.success(data.data.message);
-        navigate("/login")
+        navigate("/login");
       }
     } catch (error) {
-      console.log(error);
-      setLoader(false)
-      toast.error(error.response.data.message);
+      const errors = error.response?.data?.errors;
+
+      if (errors && Array.isArray(errors)) {
+        errors.forEach((err) => toast.error(err));
+        // when  there are multiple errors in the form of array
+      } else {
+        toast.error(error.response?.data?.message || "Something went wrong");
+        // when there  is only one error in the form of string
+      }
+      setLoader(false);
     }
   };
 
@@ -48,7 +75,6 @@ const {token} = useParams();
         </p>
         <form className="space-y-6" onSubmit={submitHandler}>
           <div>
-           
             <input
               onChange={(e) => {
                 setPassword(e.target.value);
@@ -61,12 +87,25 @@ const {token} = useParams();
               placeholder="Enter your new Password"
             />
           </div>
+          <div>
+            <input
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+              }}
+              value={confirmPassword}
+              name="confirmPassword"
+              type="password"
+              required
+              className="mt-1 block w-full px-3 py-2 border border-slate-700 rounded-md bg-slate-950/60 shadow-sm focus:outline-none focus:ring-amber-400 focus:border-amber-400 text-slate-100 placeholder:text-slate-500"
+              placeholder="Confirm your new Password"
+            />
+          </div>
           <button
-          disabled={loader}
+            disabled={loader}
             type="submit"
-          className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-slate-950 bg-amber-400 hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-400 transition-all duration-300"
+            className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-slate-950 bg-amber-400 hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-400 transition-all duration-300"
           >
-            {loader ? <Loader className="animate-spin"/> : "Change Password"}
+            {loader ? <Loader className="animate-spin" /> : "Change Password"}
           </button>
         </form>
       </div>
